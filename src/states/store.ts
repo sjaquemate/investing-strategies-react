@@ -32,7 +32,7 @@ interface Model {
 
   investingYears: number 
   setInvestingYears: Action<Model, number>
-  
+
   gainsNormalization: GainsNormalization
   setGainsNormalization: Action<Model, GainsNormalization>
 

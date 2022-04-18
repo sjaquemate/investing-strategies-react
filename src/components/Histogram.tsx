@@ -25,33 +25,17 @@ export const calculateHistogram = (
 interface Props {
   histogram: Histogram
 }
-export function HistogramChart({ histogram }: Props) {
+export function HistogramChart({histogram}: Props) {
   return (
     <ResponsiveContainer width="100%" height={100}>
-      <BarChart data={histogram}>
+      <BarChart data={histogram} barCategoryGap={1}>
         <XAxis
           dataKey="tick"
           type="number"
         // ticks={[0, 0.5, 1, 1.5, 2]}
         />
-        <Bar dataKey="count" fill="#8884d8" />
+        <Bar dataKey="count" fill="#8884d8"/>
       </BarChart>
     </ResponsiveContainer>
   )
 }
-
-
-// export const ScatterChart = ({distributionA, distributionB}: ScatterProps) => {
-//   return (
-//     <ScatterChart
-//       width={400}
-//       height={400}
-//     >
-//       <CartesianGrid />
-//       <XAxis type="number" dataKey="x" name="stature" unit="cm" />
-//       <YAxis type="number" dataKey="y" name="weight" unit="kg" />
-//       <Tooltip cursor={{ strokeDasharray: '3 3' }} />
-//       <Scatter name="A school" data={data} fill="#8884d8" />
-//     </ScatterChart>
-//   )
-// }

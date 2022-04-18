@@ -15,14 +15,12 @@ export const TimeseriesModal: FC = () => {
   ])
 
   return (
-    <div className="flex flex-col my-auto w-full p-5 rounded-md bg-gray-200 shadow-xl">
+    <div className="panel-primary">
       <TextField
         error={!tickerValidity}
-        id="outlined-error-helper-text"
         label="Enter your ticker"
         value={ticker}
-        inputProps={{ maxLength: 7, style: { textTransform: "uppercase" } }
-        }
+        inputProps={{ maxLength: 7, style: { textTransform: "uppercase" } }}
         onChange={e => setTicker(e.target.value)}
         helperText={tickerValidity ? "⠀" : "not a valid ticker"}
       />

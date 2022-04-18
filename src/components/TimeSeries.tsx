@@ -4,13 +4,11 @@ import { Timeseries, useStoreState } from "../states/store"
 interface Props {
   timeseries: Timeseries
 }
-export function TimeseriesChart({timeseries}: Props) {
+export function TimeseriesChart(props: Props) {
 
   return (
     <ResponsiveContainer width="100%" height={200}>
-      <LineChart
-        data={timeseries}
-      >
+      <LineChart data={props.timeseries}>
         <XAxis dataKey="date" />
         <Tooltip />
         <CartesianGrid stroke="#f5f5f5" />

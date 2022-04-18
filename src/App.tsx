@@ -5,6 +5,7 @@ import { DistributionsModal } from "./modals/DistributionsModal";
 import { useStoreActions, useStoreState } from "./states/store";
 import { fetchAPIResult } from "./api/fetch";
 import { parseGains, parseTimeseries } from "./api/parse";
+import ComparisonModal from "./modals/ComparisonModal";
 
 
 
@@ -36,27 +37,10 @@ function App() {
   const [gainsA, gainsB] = useStoreState( (state) => [state.gainsA, state.gainsB] )
   
   return (
-    <div className="grid grid-cols-3 gap-3 p-5 h-screen">
-
+    <div className="bg-[#F4F6FA] grid grid-cols-3 gap-3 p-5 h-screen">
       <TimeseriesModal/>
       <DistributionsModal/>
-
-      {/* <div className="flex flex-col justify-center gap-2 ">
-        <div className="rounded-md bg-gray-200 shadow-xl p-5">
-          <div className="mt-5">
-            {distributionTop && <HistogramChart distribution={distributionTop} />}
-          </div>
-        </div>
-
-        <div className="rounded-md bg-gray-200 shadow-xl p-5">
-          {distributionBottom && <HistogramChart distribution={distributionBottom} />}
-        </div>
-      </div>
-
-      <div className="flex flex-col justify-center gap-2 rounded-md bg-gray-200 shadow-xl p-5">
-        {distributionBottom && <HistogramChart distribution={distributionBottom} />}
-      </div> */}
-
+      <ComparisonModal/>
     </div>
   );
 }
