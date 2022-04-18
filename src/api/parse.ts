@@ -1,68 +1,31 @@
-import { APIResult, Gains, Timeseries } from "../states/store";
+import { APIResult, GainsNormalization, StrategyGains, Timeseries } from "../states/store";
 import { ActionCreator } from 'easy-peasy'
-import { StrategyName } from "../utils/strategies";
+import { strategies } from "../utils/strategies";
 
 export const parseTimeseries = async (
   apiResult: APIResult,
   setTimeseries: ActionCreator<Timeseries>) => {
-  const newTimeseries = apiResult.timeseries.dates.map((_, index) => {
-    return {
-      date: apiResult.timeseries.dates[index],
-      value: apiResult.timeseries.values[index]
-    }
-  })
-  setTimeseries(newTimeseries)
+  const timeseries = apiResult.timeseries.map(({ date, value }) => ({
+    date: new Date(date * 1000),
+    value: value
+  }))
+  setTimeseries(timeseries)
 }
 
-export const parseGains = async( 
+export const parseStrategyGains = async (
   apiResult: APIResult,
-  setGains: ActionCreator<Gains>,
-  strategyName: StrategyName) => {
+  setStrategyGains: ActionCreator<StrategyGains>,
+  gainsNormalization: GainsNormalization,
+  investingYears: number) => {
 
-    const x = apiResult.gains.find(x => x.strategyName === strategyName)
-    
-    if (!x) return
-
-    const newGains = x.values.map( (_, index) => {
-      return {
-        interval: x.dates[index],
-        value: x.values[index]
-      }
-    })
-    setGains(newGains)
-}
+  const strategyGains: StrategyGains = apiResult.gains.map(({ strategyName, data }) => ({
+    strategy: strategies.find( strategy => strategy.name === strategyName )!,
+    gains: data.map(x => ({
+      startDate: new Date(x.begin_date * 1000),
+      endDate: new Date(x.end_date * 1000),
+      value: gainsNormalization === 'yearly' ? x.value ** (1/investingYears) : x.value,
+    }))
+  }))
   
-//     const gainsTop = apiResult.gains.find(x => x.strategyName === strategyTop.name)?.values
-//     const gainsBottom = apiResult.gains.find(x => x.strategyName === strategyBottom.name)?.values
-//     if (gainsTop && gainsBottom) {
-
-//       const distributionTop = calculateDistribution(gainsTopNormalized, minValue, maxValue, 20)
-//       const distributionBottom = calculateDistribution(gainsBottomNormalized, minValue, maxValue, 20)
-//       setDistributionTop(distributionTop)
-//       setDistributionBottom(distributionBottom)
-//     }
-
-
-// write into function to convert...
-
-//     const normalizeGainsPeriod = (values: number[]) => {
-//       if (gainsPeriod == "yearly") {
-//         return values.map(value => value ** (1 / 12))
-//       }
-//       return values
-//     }
-
-//     const gainsTop = apiResult.gains.find(x => x.strategyName === strategyTop.name)?.values
-//     const gainsBottom = apiResult.gains.find(x => x.strategyName === strategyBottom.name)?.values
-//     if (gainsTop && gainsBottom) {
-
-//       const gainsTopNormalized = normalizeGainsPeriod(gainsTop)
-//       const gainsBottomNormalized = normalizeGainsPeriod(gainsBottom)
-//       const minValue = Math.min(...[...gainsTopNormalized, ...gainsBottomNormalized])
-//       const maxValue = Math.max(...[...gainsTopNormalized, ...gainsBottomNormalized])
-//       const distributionTop = calculateDistribution(gainsTopNormalized, minValue, maxValue, 20)
-//       const distributionBottom = calculateDistribution(gainsBottomNormalized, minValue, maxValue, 20)
-//       setDistributionTop(distributionTop)
-//       setDistributionBottom(distributionBottom)
-//     }
-//   }, [apiResult, gainsPeriod])
+  setStrategyGains(strategyGains)
+}

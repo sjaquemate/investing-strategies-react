@@ -24,6 +24,7 @@ export const fetchAPIResult = async (
     .then(response => response.json())
     .then(data => {
       setAPIResult(data)
+      console.log(data)
       setTickerValidity(true)
     })
     .catch(error => {

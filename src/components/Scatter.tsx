@@ -15,7 +15,7 @@ export const ScatterComparisonChart = ({gainsA, gainsB}: Props) => {
 
   const data = gainsA.map( (_, index) => {
     return {
-      interval: gainsA[index].interval,
+      interval: gainsA[index].startDate,
       x: gainsA[index].value,
       y: gainsB[index].value,
     }

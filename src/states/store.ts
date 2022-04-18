@@ -1,5 +1,5 @@
 import { createStore, action, Action, createTypedHooks } from 'easy-peasy'
-import { strategies, Strategy, StrategyName } from '../utils/strategies';
+import { Strategy, StrategyName } from '../utils/strategies';
 
 const typedHooks = createTypedHooks<Model>()
 
@@ -8,14 +8,20 @@ export const useStoreDispatch = typedHooks.useStoreDispatch;
 export const useStoreState = typedHooks.useStoreState;
 
 export interface APIResult {
-  gains: { strategyName: StrategyName, dates: string[], values: number[] }[]
-  timeseries: { dates: string[], values: number[] }
+  gains: { strategyName: StrategyName, 
+                   data: {
+                     begin_date: number,
+                     end_date: number,
+                     value: number,
+                   }[] }[]
+  timeseries: { date: number, value: number }[]
 }
 
 export type GainsNormalization = "yearly" | "total"
 
-export type Gains = { interval: string, value: number}[]
-export type Timeseries = { date: string, value: number }[]
+export type StrategyGains = {strategy: Strategy, gains: Gains}[]
+export type Gains = { startDate: Date, endDate: Date, value: number}[]
+export type Timeseries = { date: Date, value: number }[]
 
 interface Model {
   apiResult: APIResult | undefined
@@ -36,25 +42,18 @@ interface Model {
   gainsNormalization: GainsNormalization
   setGainsNormalization: Action<Model, GainsNormalization>
 
-  strategyA: Strategy
-  setStrategyA: Action<Model, Strategy>
-  strategyB: Strategy
-  setStrategyB: Action<Model, Strategy>
-
   timeseries: Timeseries | undefined
   setTimeseries: Action<Model, Timeseries>
 
-  gainsA: Gains | undefined 
-  setGainsA: Action<Model, Gains>
-  gainsB: Gains | undefined 
-  setGainsB: Action<Model, Gains>
+  strategyGains: StrategyGains | undefined
+  setStrategyGains: Action<Model, StrategyGains>
 }
 
 export default createStore<Model>({
   apiResult: undefined,
   setAPIResult: action((state, payload) => { state.apiResult = payload }),
 
-  ticker: "AAPL",
+  ticker: "GE",
   setTicker: action((state, payload) => {state.ticker = payload }),
 
   tickerValidity: false,
@@ -69,19 +68,12 @@ export default createStore<Model>({
   investingYears: 5,
   setInvestingYears: action((state, payload) => {state.investingYears = payload}),
 
-  gainsNormalization: "yearly",
+  gainsNormalization: "total",
   setGainsNormalization: action((state, payload) => {state.gainsNormalization = payload}),
 
-  strategyA: strategies[0],
-  setStrategyA: action((state,payload) => {state.strategyA = payload}),
-  strategyB: strategies[1],
-  setStrategyB: action((state,payload) => {state.strategyB = payload}),
+  strategyGains: undefined,
+  setStrategyGains: action((state, payload) => {state.strategyGains = payload}),
 
   timeseries: undefined,
   setTimeseries: action((state, payload) => {state.timeseries = payload}),
-
-  gainsA: undefined,
-  setGainsA:  action((state, payload) => {state.gainsA = payload}),
-  gainsB: undefined,
-  setGainsB:  action((state, payload) => {state.gainsB = payload}),
 })

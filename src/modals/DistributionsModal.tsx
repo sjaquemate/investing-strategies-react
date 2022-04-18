@@ -1,14 +1,35 @@
-import { FC, useEffect, useState } from "react"
-import { calculateHistogram, Histogram, HistogramChart } from "../components/Histogram"
+import { useState } from "react"
+import { calculateHistogram, HistogramChart } from "../components/Histogram"
 import { Gains, GainsNormalization, useStoreActions, useStoreState } from "../states/store"
 import ToggleButtonGroup from "@mui/material/ToggleButtonGroup";
 import ToggleButton from "@mui/material/ToggleButton";
 import TextField from "@mui/material/TextField";
-import Slider from "@mui/material/Slider";
+import { Strategy } from "../utils/strategies";
+
+interface HistogramElementProps {
+  strategy: Strategy
+  gains: Gains
+  minValue: number
+  maxValue: number
+  numBins: number
+}
+const HistogramElement = (props: HistogramElementProps) => {
+
+  const values = props.gains.map(x => x.value)
+  const histogram = calculateHistogram(values, props.minValue, props.maxValue, props.numBins)
+  console.log(props.minValue, props.maxValue)
+  console.log(histogram)
+  return (
+    <div>
+      {props.strategy.name}
+      <HistogramChart histogram={histogram} color={props.strategy.color}/>
+    </div>
+  )
+}
 
 export const DistributionsModal = () => {
-  const [strategyA, strategyB, gainsA, gainsB, gainsNormalization, investingYears] = useStoreState((state) => [
-    state.strategyA, state.strategyB, state.gainsA, state.gainsB, state.gainsNormalization, state.investingYears
+  const [strategyGains, gainsNormalization, investingYears] = useStoreState((state) => [
+    state.strategyGains, state.gainsNormalization, state.investingYears
   ])
 
   const [setGainsNormalization, setInvestingYears] = useStoreActions((actions) => [
@@ -16,27 +37,12 @@ export const DistributionsModal = () => {
   ])
 
   const [validInvestingYears, setValidInvestingYears] = useState(false)
-  const [histogramA, setHistogramA] = useState<Histogram | undefined>(undefined)
-  const [histogramB, setHistogramB] = useState<Histogram | undefined>(undefined)
 
-  useEffect(() => {
-    if (!gainsA || !gainsB) return
-
-    let valuesA = gainsA?.map(x => x.value)
-    let valuesB = gainsB?.map(x => x.value)
-    if (gainsNormalization === "yearly") {
-      valuesA = valuesA.map(value => value ** (1 / 12))
-      valuesB = valuesB.map(value => value ** (1 / 12))
-    }
-    const minValue = Math.min(...[...valuesA, ...valuesB])
-    const maxValue = Math.max(...[...valuesA, ...valuesB])
-
-    const numBins = 20
-
-    setHistogramA(calculateHistogram(valuesA, minValue, maxValue, numBins))
-    setHistogramB(calculateHistogram(valuesB, minValue, maxValue, numBins))
-  }, [gainsA, gainsB, gainsNormalization])
-
+  const numBins = 20
+  const allValues = strategyGains?.map(({ strategy, gains }) => gains.map(x => x.value)).flat()
+  console.log(allValues)
+  const minValue = Math.min(...(allValues || [0]))
+  const maxValue = Math.max(...(allValues || [0])) 
 
   return (
     <div className="panel-primary">
@@ -66,9 +72,19 @@ export const DistributionsModal = () => {
         <ToggleButton value="total" > Total </ToggleButton>
       </ToggleButtonGroup>
 
-      {histogramA && <HistogramChart histogram={histogramA} />}
-      {histogramB && <HistogramChart histogram={histogramB} />}
-      {/* {distributionTop && <HistogramChart distribution={distributionTop} />} */}
+      <div className='w-full'>
+        {
+          strategyGains && 
+          strategyGains.map(({ strategy, gains }) => (
+            <HistogramElement strategy={strategy}
+              gains={gains}
+              minValue={minValue}
+              maxValue={maxValue}
+              numBins={numBins}
+              key={strategy.name} />
+          ))
+        }
+      </div>
 
     </div>
   )
